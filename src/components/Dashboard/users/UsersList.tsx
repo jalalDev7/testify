@@ -1,22 +1,19 @@
 "use client";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useQuery } from "react-query";
 import { getUsers } from "@/data/users";
 import { UserType } from "@/types";
-import { BiEdit, BiLeftArrow, BiRightArrow } from "react-icons/bi";
-import { MdDelete } from "react-icons/md";
+import { BiLeftArrow, BiRightArrow } from "react-icons/bi";
 import LoadingData from "../ui/LoadingData";
 import NoData from "../ui/NoData";
 import { useState } from "react";
 import UserDetailDialog from "./UserDetailDialog";
-import { Avatar, Box, Button, Container, Typography } from "@mui/material";
+import { Avatar, Box, Container } from "@mui/material";
+import UsersTable from "./UsersTable";
+import SectionHeader from "../ui/SectionHeader";
 
+// in that component i use some components from MUI as you mentioned in the email.
 export default function UsersList() {
   const [page, setPage] = useState(1);
   const { data: users, isLoading } = useQuery(["users", page], () =>
@@ -45,73 +42,31 @@ export default function UsersList() {
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography variant="h4" sx={{ color: "black" }}>
-              Users list
-            </Typography>
-            <Typography sx={{ color: "black" }}>
-              Manage your users, update or delete.
-            </Typography>
-          </Box>
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between w-full">
+            <SectionHeader
+              title="Users"
+              subtitle="Manage your users, delete or update."
+            />
+            <div className="flex flex-row items-center -space-x-2">
+              {users &&
+                users.map((user: UserType) => (
+                  <UserDetailDialog data={user} key={user.id}>
+                    <Avatar
+                      src={user.avatar}
+                      alt={user.first_name}
+                      sx={{ width: 40, height: 40 }}
+                      className="hover:scale-125 transform transition-all duration-300 ease-in-out cursor-pointer border border-gray-700"
+                    />
+                  </UserDetailDialog>
+                ))}
+            </div>
+          </div>
           <TableContainer component={Paper}>
             {isLoading ? (
               <LoadingData />
             ) : users ? (
               <>
-                <Table sx={{ minWidth: 650 }} aria-label="users table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell
-                        sx={{ fontWeight: "bold", width: "12px" }}
-                        size="small"
-                      >
-                        Avatar
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Nom</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Prenom</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Details</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }} align="right">
-                        Actions
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {users.map((user: UserType) => (
-                      <TableRow
-                        key={user.id}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell component="th" scope="row">
-                          <Avatar src={user.avatar} alt={user.first_name} />
-                        </TableCell>
-                        <TableCell>{user.first_name}</TableCell>
-                        <TableCell>{user.last_name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          <UserDetailDialog data={user}>
-                            <Button>Show more data</Button>
-                          </UserDetailDialog>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Box
-                            sx={{
-                              display: "flex",
-                              gap: 1,
-                              justifyContent: "flex-end",
-                              alignItems: "center",
-                            }}
-                          >
-                            <BiEdit className="size-5 text-blue-500 cursor-pointer" />
-                            <MdDelete className="size-5 text-red-500 cursor-pointer" />
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <UsersTable users={users} />
                 <Box className="flex flex-row items-center gap-2 px-4 py-1 w-full ">
                   <h3 className="text-sm">Page {page}</h3>
                   <div
